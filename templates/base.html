@@ -12,11 +12,18 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Custom Theme CSS (Navy Blue & White) -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Custom Theme CSS (Glassmorphism & Luminous Ambient Mesh) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4.0">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <!-- Ambient Glowing Background Mesh (Light refraction for glassmorphism) -->
+    <div class="ambient-mesh">
+        <div class="mesh-orb mesh-orb-1"></div>
+        <div class="mesh-orb mesh-orb-2"></div>
+        <div class="mesh-orb mesh-orb-3"></div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar" id="appSidebar">
@@ -44,15 +51,17 @@
                     <span>Attendance Records</span>
                 </a>
 
-                <!-- ADMINISTRATIVE PANEL (VISIBLE ONLY TO ADMINS) -->
-                {% if is_admin %}
+                <!-- ADMINISTRATIVE & STUDENT MANAGEMENT PANEL -->
                 <div class="nav-section-title mt-3">Administration</div>
                 <a href="{{ url_for('admin_page') }}" class="sidebar-link active-admin {% if request.endpoint == 'admin_page' %}active{% endif %}">
                     <i class="fa-solid fa-sliders text-cyan"></i>
                     <span>Admin Panel</span>
                     <span class="badge bg-cyan text-dark ms-auto" style="font-size: 0.65rem;">10 Modules</span>
                 </a>
-                {% endif %}
+                <a href="{{ url_for('admin_page') }}#pane-students" class="sidebar-link" onclick="if(window.location.pathname.includes('/admin')) { const t = document.getElementById('tab-students'); if(t) t.click(); }">
+                    <i class="fa-solid fa-user-plus text-primary"></i>
+                    <span>Register Student</span>
+                </a>
             </div>
 
             <div class="sidebar-footer">
@@ -87,28 +96,39 @@
 
                     <!-- User Role & Profile Dropdown -->
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-light border text-dark bg-white dropdown-toggle d-flex align-items-center gap-2 shadow-sm py-1 px-3" type="button" data-bs-toggle="dropdown">
-                            <i class="fa-solid {% if is_admin %}fa-user-shield text-success{% else %}fa-chalkboard-user text-primary{% endif %}"></i>
-                            <span class="fw-semibold text-dark">{{ current_user.name }}</span>
+                        <button class="btn btn-sm glass-btn-dropdown dropdown-toggle d-flex align-items-center gap-2 py-1 px-3" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid {% if is_admin %}fa-user-shield text-success{% else %}fa-chalkboard-user text-cyan{% endif %}"></i>
+                            <span class="fw-semibold text-white">{{ current_user.name }}</span>
                             <span class="badge {% if is_admin %}bg-success{% else %}bg-primary{% endif %} text-white" style="font-size: 0.68rem;">{{ current_user.role }}</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 240px;">
                             <li class="px-3 py-2 border-bottom">
-                                <div class="fw-bold text-dark">{{ current_user.name }}</div>
+                                <div class="fw-bold text-white">{{ current_user.name }}</div>
                                 <div class="small text-muted">{{ current_user.email or current_user.username }}</div>
                                 <span class="badge {% if is_admin %}bg-success-subtle text-success{% else %}bg-primary-subtle text-primary{% endif %} mt-1">
                                     {{ current_user.role }} Role
                                 </span>
                             </li>
-                            {% if is_admin %}
                             <li>
                                 <a class="dropdown-item py-2" href="{{ url_for('admin_page') }}">
                                     <i class="fa-solid fa-sliders text-primary me-2"></i><strong>Open Admin Panel</strong>
                                 </a>
                             </li>
                             <li>
+                                <a class="dropdown-item py-2" href="{{ url_for('admin_page') }}#pane-students">
+                                    <i class="fa-solid fa-user-plus text-primary me-2"></i>Register Student Profile
+                                </a>
+                            </li>
+                            {% if is_admin %}
+                            <li>
                                 <a class="dropdown-item py-2" href="{{ url_for('api_switch_role', role='TEACHER') }}">
                                     <i class="fa-solid fa-chalkboard-user text-secondary me-2"></i>Switch to Teacher View
+                                </a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <a class="dropdown-item py-2" href="{{ url_for('api_switch_role', role='ADMIN') }}">
+                                    <i class="fa-solid fa-user-shield text-success me-2"></i>Switch to Administrator
                                 </a>
                             </li>
                             {% endif %}

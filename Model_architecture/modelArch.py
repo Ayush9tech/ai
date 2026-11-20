@@ -1,5 +1,9 @@
-from keras.layers import Dense, Activation, LeakyReLU, Dropout
-from keras.models import Sequential
+try:
+    from tf_keras.layers import Dense, Activation, LeakyReLU, Dropout
+    from tf_keras.models import Sequential
+except ImportError:
+    from keras.layers import Dense, Activation, LeakyReLU, Dropout
+    from keras.models import Sequential
 import warnings
 
 warnings.filterwarnings("ignore")

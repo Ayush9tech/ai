@@ -30,17 +30,17 @@
                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" id="trainProgressBar" style="width: {{ state.progress }}%"></div>
                     </div>
 
-                    <div class="row text-center small text-muted">
+                    <div class="row text-center small text-slate-400">
                         <div class="col-4">
-                            <span class="d-block text-dark fw-bold" id="metricEpoch">{{ state.current_epoch }} / {{ state.total_epochs }}</span>
+                            <span class="d-block text-white fw-bold" id="metricEpoch">{{ state.current_epoch }} / {{ state.total_epochs }}</span>
                             <span>Epoch</span>
                         </div>
                         <div class="col-4">
-                            <span class="d-block text-dark fw-bold" id="metricLoss">{{ state.loss }}</span>
+                            <span class="d-block text-cyan fw-bold" id="metricLoss">{{ state.loss }}</span>
                             <span>Loss</span>
                         </div>
                         <div class="col-4">
-                            <span class="d-block text-dark fw-bold" id="metricAcc">{{ state.accuracy }}</span>
+                            <span class="d-block text-success fw-bold" id="metricAcc">{{ state.accuracy }}</span>
                             <span>Accuracy</span>
                         </div>
                     </div>

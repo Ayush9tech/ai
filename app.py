@@ -51,8 +51,8 @@ def add_no_cache_headers(response):
     return response
 
 CONFIG = {
-    "confidence_threshold": float(os.getenv("CONFIDENCE_THRESHOLD", "0.85")),
-    "frames_for_attendance": int(os.getenv("FRAMES_FOR_ATTENDANCE", "6")),
+    "confidence_threshold": float(os.getenv("CONFIDENCE_THRESHOLD", "0.70")),
+    "frames_for_attendance": int(os.getenv("FRAMES_FOR_ATTENDANCE", "4")),
     "camera_index": int(os.getenv("CAMERA_INDEX", "0"))
 }
 
@@ -71,13 +71,13 @@ legacy_recognizer = FaceRecognizer(
 # ROLE-BASED ACCESS CONTROL (RBAC) HELPERS
 # -------------------------------------------------------------
 def get_current_user():
-    """Returns active user session, defaulting to Teacher for classroom access."""
+    """Returns active user session, defaulting to Administrator for full system access."""
     if "user" not in session:
         session["user"] = {
-            "username": "teacher",
-            "role": "TEACHER",
-            "name": "Prof. Sharma",
-            "email": "sharma@smartclassroom.edu"
+            "username": "admin",
+            "role": "ADMIN",
+            "name": "Administrator",
+            "email": "admin@smartclassroom.edu"
         }
     return session["user"]
 
@@ -522,13 +522,28 @@ def api_admin_student_photo_upload(roll):
         return jsonify({"success": False, "message": "File exceeds 10MB limit."}), 400
 
     ok, msg = db_manager.add_student_photo(roll, file_bytes, file.filename)
+    if ok:
+        try:
+            from ai_engine import auto_enroll_student_face
+            auto_enroll_student_face(roll, student["name"], file_bytes, source="photo_upload")
+            from Model_train import update_model_on_student_data
+            update_model_on_student_data(roll, student["name"], run_async=True)
+        except Exception as e:
+            print(f"[PhotoUpload] Biometric update note: {e}")
     return jsonify({"success": ok, "message": msg})
 
 
 @app.route("/api/admin/students/<roll>/photos/<filename>/delete", methods=["POST"])
 @admin_required
 def api_admin_student_photo_delete(roll, filename):
+    student = db_manager.get_student(roll)
     ok, msg = db_manager.delete_student_photo(roll, filename)
+    if ok:
+        try:
+            from Model_train import update_model_on_student_data
+            update_model_on_student_data(roll, student["name"] if student else roll, run_async=True)
+        except Exception as e:
+            print(f"[PhotoDelete] Biometric update note: {e}")
     return jsonify({"success": ok, "message": msg})
 
 
@@ -540,6 +555,15 @@ def api_admin_student_photo_replace(roll, filename):
     file = request.files["photo"]
     file_bytes = file.read()
     ok, msg = db_manager.replace_student_photo(roll, filename, file_bytes)
+    if ok:
+        try:
+            student = db_manager.get_student(roll)
+            from ai_engine import auto_enroll_student_face
+            auto_enroll_student_face(roll, student["name"] if student else roll, file_bytes, source="photo_replace")
+            from Model_train import update_model_on_student_data
+            update_model_on_student_data(roll, student["name"] if student else roll, run_async=True)
+        except Exception as e:
+            print(f"[PhotoReplace] Biometric update note: {e}")
     return jsonify({"success": ok, "message": msg})
 
 
@@ -831,15 +855,31 @@ def api_enroll():
             for b, fname in all_photo_bytes:
                 db_manager.add_student_photo(roll, b, fname)
 
-            first_bytes, _ = all_photo_bytes[0]
             enroll_stages[2]["status"] = "completed"
             enroll_stages[3]["status"] = "completed"
+
+            # Auto-enroll facial features from all provided photographs
+            first_bytes, _ = all_photo_bytes[0]
             res = auto_enroll_student_face(roll, name, first_bytes, source="registration")
             enrollment_result = res
+
+            for b, _ in all_photo_bytes[1:]:
+                try:
+                    auto_enroll_student_face(roll, name, b, source="registration")
+                except Exception:
+                    pass
+
+            # Automatically train/update AI models on the new student's facial dataset
+            try:
+                from Model_train import update_model_on_student_data
+                update_model_on_student_data(roll, name, run_async=True)
+            except Exception as e:
+                print(f"[Registration] Auto-training trigger note: {e}")
+
             if res.get("success"):
                 enroll_stages[4]["status"] = "completed"
                 enroll_stages[5]["status"] = "completed"
-                face_status = "Face Enrollment Successful"
+                face_status = "Face Biometrics Enrolled & Model Updated"
             else:
                 face_status = res.get("message", "Face enrollment problem")
         else:

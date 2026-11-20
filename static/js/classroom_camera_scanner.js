@@ -650,7 +650,7 @@ class ClassroomCameraScanner {
             // AMBIGUOUS / PENDING / LOW_QUALITY: Amber Yellow (#eab308)
             // ANONYMOUS: Slate Gray (#94a3b8)
             let boxColor = '#10b981';
-            let headerBg = 'rgba(16, 185, 129, 0.92)';
+            let headerBg = 'rgba(16, 185, 129, 0.95)';
             let textColor = '#ffffff';
 
             if (det.is_faculty || det.recognition_state === 'VERIFIED_FACULTY') {
@@ -667,12 +667,12 @@ class ClassroomCameraScanner {
                 textColor = '#ffffff';
             } else if (det.recognition_state === 'AMBIGUOUS' || det.recognition_state === 'LOW_QUALITY' || !isVerified) {
                 boxColor = '#eab308';
-                headerBg = 'rgba(234, 179, 8, 0.95)';
-                textColor = '#0a192f';
+                headerBg = 'rgba(217, 119, 6, 0.95)';
+                textColor = '#ffffff';
             } else if (det.roll === 'ANONYMOUS') {
                 boxColor = '#94a3b8';
-                headerBg = 'rgba(148, 163, 184, 0.92)';
-                textColor = '#0a192f';
+                headerBg = 'rgba(100, 116, 139, 0.95)';
+                textColor = '#ffffff';
             }
 
             // Draw Box
@@ -722,8 +722,8 @@ class ClassroomCameraScanner {
                 line1 = `FACULTY: ${det.name}`;
                 line2 = `Attendance Excluded • ${confPct}`;
             } else if (det.is_outside_class || det.recognition_state === 'OUTSIDE_CLASS') {
-                line1 = `NOT IN THIS CLASS`;
-                line2 = `${det.name} (${det.roll}) • Excluded`;
+                line1 = `${det.name} (${confPct})`;
+                line2 = `ID: ${det.roll} • Outside Class`;
             } else if (det.recognition_state === 'AMBIGUOUS') {
                 line1 = `AMBIGUOUS MATCH`;
                 line2 = `Attendance Denied`;
@@ -732,20 +732,21 @@ class ClassroomCameraScanner {
                 line2 = `Unregistered • Not Marked`;
             }
 
-            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.font = 'bold 13px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
             const m1 = ctx.measureText(line1);
             const m2 = ctx.measureText(line2);
-            const labelW = Math.max(w, Math.max(m1.width, m2.width) + 16);
-            const labelH = 34;
+            const labelW = Math.max(w, Math.max(m1.width, m2.width) + 20);
+            const labelH = 38;
 
             const labelY = Math.max(0, y - labelH);
             ctx.fillStyle = headerBg;
             ctx.fillRect(mirrorX, labelY, labelW, labelH);
 
-            ctx.fillStyle = textColor;
-            ctx.fillText(line1, mirrorX + 8, labelY + 14);
-            ctx.font = '10px JetBrains Mono, monospace';
-            ctx.fillText(line2, mirrorX + 8, labelY + 28);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(line1, mirrorX + 10, labelY + 16);
+            ctx.font = '11px JetBrains Mono, monospace';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
+            ctx.fillText(line2, mirrorX + 10, labelY + 31);
 
             // Status label below box
             if (det.status) {

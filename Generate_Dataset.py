@@ -78,6 +78,13 @@ def Generate_Data(name, roll_no, max_pics=30, camera_index=0):
         except Exception:
             pass
 
+    # Automatically update & retrain model on captured facial data
+    try:
+        from Model_train import update_model_on_student_data
+        update_model_on_student_data(clean_roll, clean_name, run_async=True)
+    except Exception as e:
+        print(f"[GenerateDataset] Auto-update note: {e}")
+
     return True, f"Successfully captured {pic_no} images for {clean_name} (Roll: {clean_roll}).", pic_no
 
 
@@ -130,5 +137,12 @@ def save_student_captured_images(roll_no, name, base64_images):
             cv2.imwrite(str(img_path), target_img)
         except Exception as e:
             print(f"[GenerateDataset] Error saving web frame {i}: {e}")
+
+    # Automatically update & retrain model on captured facial data
+    try:
+        from Model_train import update_model_on_student_data
+        update_model_on_student_data(clean_roll, clean_name, run_async=True)
+    except Exception as e:
+        print(f"[GenerateDataset] Auto-update note: {e}")
 
     return True, f"Successfully enrolled {clean_name} ({clean_roll}) with {saved_count} face images.", saved_count

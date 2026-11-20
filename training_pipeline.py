@@ -61,11 +61,19 @@ _TRAINING_LOCK = threading.Lock()
 
 def parse_student_folder(folder_name):
     """Extracts (roll, name) from folder format."""
-    match = re.match(r"^(\d+)[_\s-]*(.*)$", folder_name)
-    if match:
-        roll = match.group(1)
-        name = match.group(2) if match.group(2) else f"Student_{roll}"
-        return roll, name.replace("_", " ").strip()
+    try:
+        from database_manager import db_manager
+        students = db_manager.get_all_students()
+        for s in students:
+            roll = str(s.get("roll_number", "")).strip()
+            if roll and (folder_name == roll or folder_name.startswith(f"{roll}_")):
+                return roll, s.get("name", roll)
+    except Exception:
+        pass
+
+    if "_" in folder_name:
+        parts = folder_name.split("_", 1)
+        return parts[0].strip(), parts[1].replace("_", " ").strip()
     return folder_name, folder_name
 
 

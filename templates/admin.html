@@ -6,32 +6,45 @@
 {% block content %}
 <style>
 .admin-sidebar-btn {
-    color: #94a3b8 !important;
-    font-weight: 400 !important;
-    font-size: 0.82rem !important;
-    border-radius: 6px;
-    padding: 7px 12px !important;
-    border: none;
-    background: transparent;
-    transition: all 0.15s ease-in-out;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    font-size: 0.84rem !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    border: 1px solid transparent !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
 }
 .admin-sidebar-btn:hover {
-    color: #f1f5f9 !important;
-    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    transform: translateX(2px);
 }
 .admin-sidebar-btn.active {
-    color: #64ffda !important;
-    background: rgba(100, 255, 218, 0.08) !important;
-    border-left: 3px solid #64ffda;
-    font-weight: 500 !important;
+    color: #ffffff !important;
+    background: linear-gradient(90deg, rgba(0, 242, 254, 0.22) 0%, rgba(59, 130, 246, 0.08) 100%) !important;
+    border-left: 3px solid var(--cyan-primary) !important;
+    border-color: rgba(0, 242, 254, 0.4) !important;
+    box-shadow: 0 4px 18px rgba(0, 242, 254, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    font-weight: 600 !important;
 }
 .admin-sidebar-btn i {
-    width: 18px;
+    width: 20px;
     text-align: center;
     color: #64748b;
+    transition: color 0.18s, transform 0.18s;
+}
+.admin-sidebar-btn:hover i {
+    color: var(--cyan-primary);
+    transform: scale(1.1);
 }
 .admin-sidebar-btn.active i {
-    color: #64ffda;
+    color: var(--cyan-primary);
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
 }
 </style>
 
@@ -142,37 +155,37 @@
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <div class="p-3 rounded border bg-light">
-                                            <div class="small text-muted fw-bold mb-1">Face Recognition Architecture</div>
-                                            <div class="fw-semibold text-dark">FaceNet-128D Multi-Prototype Centroid</div>
-                                            <div class="small text-secondary mt-1">
-                                                Threshold High: <strong>0.72</strong> &bull; Review: <strong>0.58</strong> &bull; Margin: <strong>0.04</strong>
+                                        <div class="p-3 rounded border border-slate-700 bg-slate-900">
+                                            <div class="small text-slate-400 fw-bold mb-1">Face Recognition Architecture</div>
+                                            <div class="fw-semibold text-white">FaceNet-128D Multi-Prototype Centroid</div>
+                                            <div class="small text-slate-400 mt-1">
+                                                Threshold High: <strong class="text-cyan">0.72</strong> &bull; Review: <strong class="text-warning">0.58</strong> &bull; Margin: <strong class="text-white">0.04</strong>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="p-3 rounded border bg-light">
-                                            <div class="small text-muted fw-bold mb-1">Faculty Exclusion Engine</div>
-                                            <div class="fw-semibold text-primary">Isolated Namespace Active</div>
-                                            <div class="small text-secondary mt-1">
+                                        <div class="p-3 rounded border border-slate-700 bg-slate-900">
+                                            <div class="small text-slate-400 fw-bold mb-1">Faculty Exclusion Engine</div>
+                                            <div class="fw-semibold text-cyan">Isolated Namespace Active</div>
+                                            <div class="small text-slate-400 mt-1">
                                                 Faculty faces marked with Pure Blue box and excluded from student attendance.
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="p-3 rounded border bg-light">
-                                            <div class="small text-muted fw-bold mb-1">Class-Wise Scope Enforcement</div>
+                                        <div class="p-3 rounded border border-slate-700 bg-slate-900">
+                                            <div class="small text-slate-400 fw-bold mb-1">Class-Wise Scope Enforcement</div>
                                             <div class="fw-semibold text-success">Strict Candidate Filtering</div>
-                                            <div class="small text-secondary mt-1">
-                                                Students from outside class trigger warning: <em>"Not in this class"</em>.
+                                            <div class="small text-slate-400 mt-1">
+                                                Students from outside class trigger warning: <em class="text-warning">"Not in this class"</em>.
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="p-3 rounded border bg-light">
-                                            <div class="small text-muted fw-bold mb-1">Database Sync State</div>
-                                            <div class="fw-semibold text-dark">{{ health.database if health else 'SQLite & MongoDB' }}</div>
-                                            <div class="small text-secondary mt-1">Full schema parity with instant face vector persistence.</div>
+                                        <div class="p-3 rounded border border-slate-700 bg-slate-900">
+                                            <div class="small text-slate-400 fw-bold mb-1">Database Sync State</div>
+                                            <div class="fw-semibold text-white">{{ health.database if health else 'SQLite & MongoDB' }}</div>
+                                            <div class="small text-slate-400 mt-1">Full schema parity with instant face vector persistence.</div>
                                         </div>
                                     </div>
                                 </div>
@@ -239,8 +252,8 @@
                                             <td>
                                                 <img src="{{ s.profile_photo or '/static/profiles/' ~ s.roll_number ~ '.jpg' }}" class="rounded-circle border" width="34" height="34" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name={{ s.name | urlencode }}&background=0a192f&color=64ffda'">
                                             </td>
-                                            <td class="fw-bold font-monospace">{{ s.roll_number }}</td>
-                                            <td class="fw-semibold text-dark">{{ s.name }}</td>
+                                            <td class="fw-bold font-monospace text-cyan">{{ s.roll_number }}</td>
+                                            <td class="fw-semibold text-white">{{ s.name }}</td>
                                             <td>
                                                 <span class="badge bg-light text-dark border">{{ s.degree or 'B.Tech' }}</span>
                                                 <small class="text-secondary d-block">{{ s.stream or s.department }}</small>
@@ -325,9 +338,9 @@
                                             <td>
                                                 <img src="/static/profiles/faculty_{{ f.faculty_id }}.jpg" class="rounded-circle border" width="34" height="34" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name={{ f.name | urlencode }}&background=1e3a8a&color=ffffff'">
                                             </td>
-                                            <td class="fw-bold font-monospace">{{ f.faculty_id }}</td>
-                                            <td class="fw-semibold text-dark">{{ f.name }}</td>
-                                            <td><small class="text-muted">{{ f.department }}</small></td>
+                                            <td class="fw-bold font-monospace text-primary">{{ f.faculty_id }}</td>
+                                            <td class="fw-semibold text-white">{{ f.name }}</td>
+                                            <td><small class="text-secondary">{{ f.department }}</small></td>
                                             <td><span class="badge bg-light text-dark border">{{ f.designation or 'Faculty' }}</span></td>
                                             <td><small class="text-secondary">{{ f.email }}<br>{{ f.phone }}</small></td>
                                             <td>
@@ -412,30 +425,33 @@
                                             <td class="font-monospace small">{{ log.timestamp }}</td>
                                             <td class="font-monospace small text-truncate" style="max-width: 140px;">{{ log.session_id or 'LIVE_CAM' }}</td>
                                             <td>
-                                                {% if log.person_type == 'FACULTY' %}
+                                                {% set p_type = log.person_type or log.predicted_identity_type %}
+                                                {% if p_type == 'FACULTY' %}
                                                 <span class="badge bg-primary">Faculty</span>
-                                                {% elif log.person_type == 'STUDENT' %}
+                                                {% elif p_type == 'STUDENT' %}
                                                 <span class="badge bg-success">Student</span>
                                                 {% else %}
                                                 <span class="badge bg-danger">Unknown</span>
                                                 {% endif %}
                                             </td>
-                                            <td class="fw-bold font-monospace">{{ log.person_id }}</td>
+                                            <td class="fw-bold font-monospace">{{ log.person_id or log.matched_identity_id or 'UNKNOWN' }}</td>
                                             <td>
-                                                {% if log.decision_state == 'VERIFIED_STUDENT' or log.decision_state == 'ATTENDANCE_MARKED' %}
-                                                <span class="badge bg-success-subtle text-success border border-success">{{ log.decision_state }}</span>
-                                                {% elif log.decision_state == 'VERIFIED_FACULTY' %}
+                                                {% set d_state = log.decision_state or log.decision %}
+                                                {% if d_state == 'VERIFIED_STUDENT' or d_state == 'ATTENDANCE_MARKED' %}
+                                                <span class="badge bg-success-subtle text-success border border-success">{{ d_state }}</span>
+                                                {% elif d_state == 'VERIFIED_FACULTY' %}
                                                 <span class="badge bg-primary-subtle text-primary border border-primary">EXCLUDED_FACULTY</span>
-                                                {% elif log.decision_state == 'OUTSIDE_CLASS' %}
+                                                {% elif d_state == 'OUTSIDE_CLASS' %}
                                                 <span class="badge bg-warning-subtle text-warning border border-warning">OUTSIDE_CLASS</span>
-                                                {% elif log.decision_state == 'AMBIGUOUS' or log.decision_state == 'LOW_QUALITY' %}
-                                                <span class="badge bg-warning-subtle text-dark border border-warning">{{ log.decision_state }}</span>
+                                                {% elif d_state == 'AMBIGUOUS' or d_state == 'LOW_QUALITY' %}
+                                                <span class="badge bg-warning-subtle text-dark border border-warning">{{ d_state }}</span>
                                                 {% else %}
-                                                <span class="badge bg-danger-subtle text-danger border border-danger">{{ log.decision_state }}</span>
+                                                <span class="badge bg-danger-subtle text-danger border border-danger">{{ d_state }}</span>
                                                 {% endif %}
                                             </td>
-                                            <td class="font-monospace">{{ (log.confidence * 100)|round(1) }}%</td>
-                                            <td class="small text-muted text-truncate" style="max-width: 200px;">{{ log.metadata_json }}</td>
+                                            {% set conf_val = (log.confidence if log.confidence is defined and log.confidence is not none else (log.similarity_score if log.similarity_score is defined and log.similarity_score is not none else 0)) %}
+                                            <td class="font-monospace">{{ (conf_val * 100)|round(1) }}%</td>
+                                            <td class="small text-muted text-truncate" style="max-width: 200px;">{{ log.metadata_json or log.rejection_reason or '' }}</td>
                                         </tr>
                                         {% endfor %}
                                     {% else %}
@@ -480,15 +496,6 @@
                     </div>
                 </div>
             </div>
-                                    {% else %}
-                                        <tr><td colspan="8" class="text-center py-4 text-muted">No students enrolled.</td></tr>
-                                    {% endif %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- ============================================================= -->
             <!-- 2. STUDENT PHOTO UPLOAD (MAX 10 PHOTOS, VALIDATION, CONSENT)  -->
@@ -527,8 +534,8 @@
                                     <div class="d-flex align-items-center gap-3">
                                         <img id="selectedStudentPhotoThumb" src="" class="rounded-circle border" width="48" height="48" style="object-fit: cover;">
                                         <div>
-                                            <div class="fw-bold text-dark fs-6" id="selectedStudentName"></div>
-                                            <div class="small text-muted" id="selectedStudentConsent"></div>
+                                            <div class="fw-bold text-white fs-6" id="selectedStudentName"></div>
+                                            <div class="small text-secondary" id="selectedStudentConsent"></div>
                                         </div>
                                         <div class="ms-auto text-end">
                                             <span class="badge bg-primary fs-6" id="photoCountBadge">0 / 10 Photos</span>
@@ -538,18 +545,45 @@
                             </div>
                         </div>
 
-                        <!-- Upload Photo Form -->
+                        <!-- Upload / Camera Scan Photo Card -->
                         <div class="card mb-4 border" id="uploadPhotoCard" style="display: none;">
                             <div class="card-body">
-                                <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>Upload New Student Photograph</h6>
-                                <p class="small text-muted mb-3">Upload clear facial image files (JPEG, PNG). All photographs are validated and linked with the Student Roll ID.</p>
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                                    <h6 class="fw-bold text-white mb-0"><i class="fa-solid fa-cloud-arrow-up me-2 text-cyan"></i>Add Biometric Photo</h6>
+                                    <button type="button" class="btn btn-sm btn-cyan" id="quickCamSnapToggleBtn" onclick="toggleQuickCamSnap()">
+                                        <i class="fa-solid fa-camera me-1"></i> Scan Face with Camera
+                                    </button>
+                                </div>
+                                <p class="small text-secondary mb-3">Upload clear facial image files or snap directly using the camera. Automatically enrolled into the AI model.</p>
+                                
+                                <!-- Quick Camera Scan Box -->
+                                <div id="quickCamBox" class="mb-3 p-3 rounded-4 border" style="display: none; background: rgba(11, 19, 36, 0.7); border-color: rgba(0, 242, 254, 0.3) !important;">
+                                    <div class="d-flex flex-wrap gap-3 align-items-center">
+                                        <div style="width: 220px; height: 165px; background: #000; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(0, 242, 254, 0.4);">
+                                            <video id="quickCamVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+                                            <canvas id="quickCamCanvas" style="display: none;"></canvas>
+                                            <div class="position-absolute top-0 start-0 m-1 badge bg-dark border border-secondary text-cyan small"><span class="pulse-dot me-1"></span>Ready</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-white small fw-bold mb-1"><i class="fa-solid fa-video text-cyan me-1"></i>Live Biometric Camera Active</div>
+                                            <div class="text-secondary small mb-3">Position student face in center with good lighting and click Capture.</div>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-cyan btn-sm px-3" onclick="captureAndUploadQuickSnap()">
+                                                    <i class="fa-solid fa-camera-retro me-1"></i> Snap & Enroll Photo
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleQuickCamSnap()">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <form id="singlePhotoUploadForm" class="row g-2 align-items-center">
                                     <div class="col-md-8">
-                                        <input type="file" class="form-control" id="newPhotoFileInput" accept="image/jpeg,image/png" required>
+                                        <input type="file" class="form-control" id="newPhotoFileInput" accept="image/jpeg,image/png">
                                     </div>
                                     <div class="col-md-4">
                                         <button type="submit" class="btn btn-success w-100" id="uploadPhotoSubmitBtn">
-                                            <i class="fa-solid fa-plus me-1"></i> Add Photograph
+                                            <i class="fa-solid fa-plus me-1"></i> Upload File
                                         </button>
                                     </div>
                                 </form>
@@ -619,9 +653,9 @@
                                     <tbody id="classesTableBody">
                                         {% for c in classes %}
                                         <tr id="row-class-{{ c.class_id }}">
-                                            <td class="font-monospace small">{{ c.class_id }}</td>
-                                            <td class="fw-bold text-dark">{{ c.class_name }}</td>
-                                            <td>{{ c.department }}</td>
+                                            <td class="font-monospace small text-cyan">{{ c.class_id }}</td>
+                                            <td class="fw-bold text-white">{{ c.class_name }}</td>
+                                            <td class="text-secondary">{{ c.department }}</td>
                                             <td><span class="badge bg-light text-dark border">{{ c.section }}</span></td>
                                             <td class="text-end">
                                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteClass('{{ c.class_id }}')"><i class="fa-solid fa-trash-can"></i></button>
@@ -686,9 +720,9 @@
                                     <tbody id="subjectsTableBody">
                                         {% for s in subjects %}
                                         <tr id="row-subj-{{ s.subject_id }}">
-                                            <td class="font-monospace small fw-bold">{{ s.subject_code or s.subject_id }}</td>
-                                            <td class="fw-bold text-dark">{{ s.subject_name }}</td>
-                                            <td>{{ s.department }}</td>
+                                            <td class="font-monospace small fw-bold text-cyan">{{ s.subject_code or s.subject_id }}</td>
+                                            <td class="fw-bold text-white">{{ s.subject_name }}</td>
+                                            <td class="text-secondary">{{ s.department }}</td>
                                             <td class="text-end">
                                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteSubject('{{ s.subject_id }}')"><i class="fa-solid fa-trash-can"></i></button>
                                             </td>
@@ -756,8 +790,8 @@
                                     <tbody id="teachersTableBody">
                                         {% for t in teachers %}
                                         <tr id="row-tch-{{ t.teacher_id }}">
-                                            <td class="fw-bold text-dark">{{ t.name }}</td>
-                                            <td>{{ t.department }}</td>
+                                            <td class="fw-bold text-white">{{ t.name }}</td>
+                                            <td class="text-secondary">{{ t.department }}</td>
                                             <td><small class="text-muted">{{ t.email or '-' }}</small></td>
                                             <td><small class="text-muted">{{ t.phone or '-' }}</small></td>
                                             <td class="text-end">
@@ -891,31 +925,31 @@
                                     <div class="card-body">
                                         <div class="row g-3 mb-4">
                                             <div class="col-sm-6">
-                                                <div class="p-3 bg-light rounded border text-center">
-                                                    <div class="text-muted small fw-bold">FACE DETECTOR (DNN)</div>
-                                                    <div class="fs-6 fw-bold text-dark mt-1">OpenCV YuNet ONNX</div>
+                                                <div class="p-3 bg-slate-900 rounded border border-slate-700 text-center">
+                                                    <div class="text-slate-400 small fw-bold">FACE DETECTOR (DNN)</div>
+                                                    <div class="fs-6 fw-bold text-white mt-1">OpenCV YuNet ONNX</div>
                                                     <span class="badge bg-info-subtle text-info mt-1">5-Point Landmarks</span>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-                                                <div class="p-3 bg-light rounded border text-center">
-                                                    <div class="text-muted small fw-bold">FEATURE EXTRACTOR</div>
-                                                    <div class="fs-6 fw-bold text-dark mt-1">FaceNet 128-D</div>
-                                                    <span class="badge bg-primary-subtle text-primary mt-1">Inception-ResNet L2</span>
+                                                <div class="p-3 bg-slate-900 rounded border border-slate-700 text-center">
+                                                    <div class="text-slate-400 small fw-bold">FEATURE EXTRACTOR</div>
+                                                    <div class="fs-6 fw-bold text-white mt-1">FaceNet 128-D</div>
+                                                    <span class="badge bg-primary-subtle text-cyan mt-1">Inception-ResNet L2</span>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-                                                <div class="p-3 bg-light rounded border text-center">
-                                                    <div class="text-muted small fw-bold">MATCHING ENGINE</div>
-                                                    <div class="fs-6 fw-bold text-dark mt-1">Exemplar Prototype Matcher</div>
+                                                <div class="p-3 bg-slate-900 rounded border border-slate-700 text-center">
+                                                    <div class="text-slate-400 small fw-bold">MATCHING ENGINE</div>
+                                                    <div class="fs-6 fw-bold text-white mt-1">Exemplar Prototype Matcher</div>
                                                     <span class="badge bg-success-subtle text-success mt-1">Hyperspherical Cosine</span>
                                                 </div>
                                             </div>
                                             <div class="col-sm-6">
-                                                <div class="p-3 bg-light rounded border text-center">
-                                                    <div class="text-muted small fw-bold">DATABASE BACKEND</div>
-                                                    <div class="fs-6 fw-bold text-dark mt-1" id="aiDbModeText">{{ health.db.mode }}</div>
-                                                    <span class="badge bg-secondary-subtle text-secondary mt-1">Dual-Storage Enabled</span>
+                                                <div class="p-3 bg-slate-900 rounded border border-slate-700 text-center">
+                                                    <div class="text-slate-400 small fw-bold">DATABASE BACKEND</div>
+                                                    <div class="fs-6 fw-bold text-white mt-1" id="aiDbModeText">{{ health.db.mode }}</div>
+                                                    <span class="badge bg-secondary-subtle text-slate-300 mt-1">Dual-Storage Enabled</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1003,32 +1037,32 @@
                             <div class="card-body">
                                 <div class="row g-3 mb-4" id="datasetStatsRow">
                                     <div class="col-md-3 col-6">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <div class="text-muted small">Total Training Photos</div>
-                                            <div class="fs-4 fw-bold text-dark mt-1" id="statTotalImages">-</div>
+                                        <div class="p-3 bg-slate-900 rounded text-center border border-slate-700">
+                                            <div class="text-slate-400 small">Total Training Photos</div>
+                                            <div class="fs-4 fw-bold text-white mt-1" id="statTotalImages">-</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-6">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <div class="text-muted small">Verified Aligned Faces</div>
+                                        <div class="p-3 bg-slate-900 rounded text-center border border-slate-700">
+                                            <div class="text-slate-400 small">Verified Aligned Faces</div>
                                             <div class="fs-4 fw-bold text-success mt-1" id="statVerifiedFaces">-</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-6">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <div class="text-muted small">Blurry / Low Quality</div>
+                                        <div class="p-3 bg-slate-900 rounded text-center border border-slate-700">
+                                            <div class="text-slate-400 small">Blurry / Low Quality</div>
                                             <div class="fs-4 fw-bold text-warning mt-1" id="statBlurryCount">-</div>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-6">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <div class="text-muted small">Duplicate Photos (dHash)</div>
+                                        <div class="p-3 bg-slate-900 rounded text-center border border-slate-700">
+                                            <div class="text-slate-400 small">Duplicate Photos (dHash)</div>
                                             <div class="fs-4 fw-bold text-danger mt-1" id="statDuplicateCount">-</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <h6 class="fw-bold text-dark small text-uppercase mb-2">Student Enrolled Class Distribution</h6>
+                                <h6 class="fw-bold text-white small text-uppercase mb-2">Student Enrolled Class Distribution</h6>
                                 <div class="table-responsive">
                                     <table class="table table-hover table-bordered table-sm align-middle small mb-0">
                                         <thead class="table-light">
@@ -1221,7 +1255,7 @@
                             </button>
 
                             <div id="groupCropsResultContainer" style="display: none;">
-                                <h6 class="fw-bold small text-uppercase text-dark mb-2">Detected Faces for Assignment</h6>
+                                <h6 class="fw-bold small text-uppercase text-white mb-2">Detected Faces for Assignment</h6>
                                 <div class="row g-3" id="groupCropsGrid"></div>
                             </div>
                         </div>
@@ -1336,8 +1370,8 @@
                                 <tbody>
                                     {% for s in all_sessions %}
                                     <tr>
-                                        <td class="font-monospace small fw-bold">{{ s.session_id }}</td>
-                                        <td class="fw-semibold text-dark">{{ s.subject }}</td>
+                                        <td class="font-monospace small fw-bold text-cyan">{{ s.session_id }}</td>
+                                        <td class="fw-semibold text-white">{{ s.subject }}</td>
                                         <td>{{ s.class_name }} ({{ s.section }})</td>
                                         <td>{{ s.faculty_name }}</td>
                                         <td><small class="text-muted">{{ s.session_start_time }}</small></td>
@@ -1403,7 +1437,7 @@
 
                     <div class="col-md-8">
                         <div class="card-custom h-100">
-                            <div class="card-header"><i class="fa-solid fa-users-gear me-2 text-dark"></i>System Users & Role Permissions</div>
+                            <div class="card-header"><i class="fa-solid fa-users-gear me-2 text-cyan"></i>System Users & Role Permissions</div>
                             <div class="card-body p-0">
                                 <table class="table table-custom table-hover align-middle mb-0">
                                     <thead class="table-light">
@@ -1418,8 +1452,8 @@
                                     <tbody id="usersTableBody">
                                         {% for u in users %}
                                         <tr id="row-user-{{ u.username }}">
-                                            <td class="fw-bold font-monospace">{{ u.username }}</td>
-                                            <td class="text-dark">{{ u.name }}</td>
+                                            <td class="fw-bold font-monospace text-cyan">{{ u.username }}</td>
+                                            <td class="text-white">{{ u.name }}</td>
                                             <td>
                                                 {% if u.role == 'ADMIN' %}
                                                 <span class="badge bg-success"><i class="fa-solid fa-shield-halved me-1"></i>ADMIN</span>
@@ -1521,11 +1555,100 @@
                                 <option value="2027-28">2027-28</option>
                             </select>
                         </div>
+                        <!-- Biometric Face Intake: Live Scanner vs File Upload -->
                         <div class="col-12">
-                            <label class="form-label small fw-semibold text-muted">Student Photographs (Intake up to 10 photos)</label>
-                            <input type="file" class="form-control" id="modalPhotosInput" accept="image/jpeg,image/png" multiple onchange="previewModalPhotos(this)">
-                            <div class="form-text small text-muted">Clear, front-facing facial photos (JPEG/PNG). Automatically enrolled into FaceNet biometric index.</div>
-                            <div id="modalPhotosPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                                <label class="form-label small fw-semibold text-white mb-0">
+                                    <i class="fa-solid fa-camera-retro text-cyan me-1"></i> Biometric Face Registration
+                                </label>
+                                <div class="btn-group btn-group-sm p-1 rounded-pill" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);">
+                                    <button type="button" class="btn btn-sm btn-cyan active rounded-pill px-3 py-1" id="intakeModeCamBtn" onclick="switchIntakeMode('camera')">
+                                        <i class="fa-solid fa-video me-1"></i> Live Face Scanner
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 text-white border-0" id="intakeModeUploadBtn" onclick="switchIntakeMode('upload')">
+                                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Upload Files
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Live Camera Face Scanner Section -->
+                            <div id="camIntakeSection" class="p-3 rounded-4 mb-2" style="background: rgba(11, 19, 36, 0.7); border: 1px solid rgba(0, 242, 254, 0.3); backdrop-filter: blur(12px);">
+                                <div class="row g-3">
+                                    <div class="col-md-7">
+                                        <!-- Video Viewport with Live HUD Guides -->
+                                        <div class="position-relative rounded-3 overflow-hidden shadow-sm" style="background: #020612; border: 1px solid rgba(0, 242, 254, 0.35); min-height: 240px; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;">
+                                            <!-- Standby Screen -->
+                                            <div id="modalCamPlaceholder" class="text-center p-3">
+                                                <i class="fa-solid fa-camera-viewfinder display-5 text-cyan opacity-75 mb-2 d-block"></i>
+                                                <div class="text-white small fw-semibold">Camera Scanner Standby</div>
+                                                <div class="text-secondary small mb-3">Activate camera to scan student's facial features</div>
+                                                <button type="button" class="btn btn-cyan btn-sm px-3" onclick="startModalCamera()">
+                                                    <i class="fa-solid fa-play me-1"></i> Activate Camera
+                                                </button>
+                                            </div>
+
+                                            <!-- Video Feed -->
+                                            <video id="modalRegVideo" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover; display: none; transform: scaleX(-1);"></video>
+
+                                            <!-- Scanning Reticle Overlay -->
+                                            <div id="modalFaceReticle" style="display: none; position: absolute; top: 10%; left: 22%; width: 56%; height: 80%; border: 2px dashed rgba(0, 242, 254, 0.75); border-radius: 50%; pointer-events: none; box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);">
+                                                <div class="scan-laser-line"></div>
+                                            </div>
+
+                                            <!-- Viewport Badge -->
+                                            <div id="modalCamStatusBadge" class="position-absolute top-0 start-0 m-2 badge bg-dark border border-secondary text-white" style="display: none;">
+                                                <span class="pulse-dot me-1"></span><span id="modalCamStatusText">Camera Active</span>
+                                            </div>
+
+                                            <!-- Offscreen Canvas for Snapshot Capture -->
+                                            <canvas id="modalSnapCanvas" style="display: none;"></canvas>
+                                        </div>
+
+                                        <!-- Controls -->
+                                        <div class="d-flex gap-2 mt-2" id="modalCamControls" style="display: none;">
+                                            <button type="button" class="btn btn-cyan btn-sm flex-grow-1" id="modalAutoBurstBtn" onclick="autoScanFacePoses()">
+                                                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Auto-Scan 5 Poses
+                                            </button>
+                                            <button type="button" class="btn btn-outline-cyan btn-sm" id="modalSingleSnapBtn" onclick="captureSingleFacePose()">
+                                                <i class="fa-solid fa-camera-retro me-1"></i> Snap
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="stopModalCamera()" title="Stop Camera">
+                                                <i class="fa-solid fa-stop"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scanned Thumbnails Tray -->
+                                    <div class="col-md-5">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-semibold text-white">Scanned Face Poses</span>
+                                            <span class="badge bg-cyan text-dark fw-bold" id="modalScannedCountBadge">0 / 5 Scans</span>
+                                        </div>
+                                        <div class="small text-secondary mb-2" style="font-size: 0.75rem;">
+                                            For &ge; 90% accuracy, capture front, slight left, slight right, smile, and head tilt.
+                                        </div>
+                                        <!-- Thumbnails Container -->
+                                        <div class="d-flex flex-wrap gap-2 p-2 rounded border" id="modalScannedPhotosTray" style="background: rgba(15, 23, 42, 0.6); border-color: rgba(255, 255, 255, 0.1) !important; min-height: 150px; max-height: 220px; overflow-y: auto;">
+                                            <div class="text-center w-100 py-4 text-muted small" id="noScansPrompt">
+                                                <i class="fa-regular fa-image mb-1 d-block opacity-50"></i>
+                                                No face scans captured yet.<br>Click "Auto-Scan 5 Poses" to begin.
+                                            </div>
+                                        </div>
+                                        <div class="mt-2 text-end">
+                                            <button type="button" class="btn btn-link btn-sm text-danger text-decoration-none p-0" id="clearScansBtn" style="display: none;" onclick="clearScannedPhotos()">
+                                                <i class="fa-solid fa-trash-can me-1"></i> Clear all scans
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Upload Fallback Section -->
+                            <div id="uploadIntakeSection" style="display: none;">
+                                <input type="file" class="form-control" id="modalPhotosInput" accept="image/jpeg,image/png" multiple onchange="previewModalPhotos(this)">
+                                <div class="form-text small text-secondary">Upload 3-10 clear front-facing facial photos (JPEG/PNG).</div>
+                                <div id="modalPhotosPreview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                            </div>
                         </div>
                         <div class="col-12">
                             <div class="form-check">
@@ -1538,9 +1661,9 @@
                     </div>
 
                     <!-- Real-Time Automated Enrollment Stages Feedback -->
-                    <div id="enrollProgressBox" class="mt-3 p-3 rounded border bg-light d-none">
+                    <div id="enrollProgressBox" class="mt-3 p-3 rounded border border-slate-700 bg-slate-900 d-none">
                         <div class="d-flex align-items-center justify-content-between mb-2">
-                            <span class="small fw-bold text-dark"><i class="fa-solid fa-microchip text-primary me-1"></i>Automated Biometric Face Training</span>
+                            <span class="small fw-bold text-white"><i class="fa-solid fa-microchip text-cyan me-1"></i>Automated Biometric Face Training</span>
                             <span class="badge bg-primary" id="enrollProgressStateBadge">Processing</span>
                         </div>
                         <div class="progress mb-2" style="height: 6px;">
@@ -1734,7 +1857,7 @@ function appendStudentRow(s) {
             <img src="${s.profile_photo || '/static/profiles/' + s.roll_number + '.jpg'}" class="rounded-circle border" width="34" height="34" style="object-fit: cover;" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=0a192f&color=64ffda'">
         </td>
         <td class="fw-bold font-monospace">${s.roll_number}</td>
-        <td class="fw-semibold text-dark">${s.name}</td>
+        <td class="fw-semibold text-white">${s.name}</td>
         <td>
             <span class="badge bg-light text-dark border">${s.degree || 'B.Tech'}</span>
             <small class="text-secondary d-block">${s.stream || s.department || 'Textile Technology'}</small>
@@ -1834,6 +1957,299 @@ function filterPhotoCandidateDropdown(q) {
     }
 }
 
+// =========================================================================
+// LIVE WEBCAM FACE SCANNER FOR STUDENT REGISTRATION
+// =========================================================================
+let modalMediaStream = null;
+let scannedPhotoBlobs = [];
+const POSE_NAMES = ['Frontal Face', 'Slight Left', 'Slight Right', 'Slight Smile', 'Head Tilt'];
+
+function switchIntakeMode(mode) {
+    const camSection = document.getElementById('camIntakeSection');
+    const uploadSection = document.getElementById('uploadIntakeSection');
+    const camBtn = document.getElementById('intakeModeCamBtn');
+    const uploadBtn = document.getElementById('intakeModeUploadBtn');
+
+    if (mode === 'camera') {
+        if (camSection) camSection.style.display = 'block';
+        if (uploadSection) uploadSection.style.display = 'none';
+        if (camBtn) {
+            camBtn.classList.add('btn-cyan', 'active');
+            camBtn.classList.remove('btn-outline-secondary');
+        }
+        if (uploadBtn) {
+            uploadBtn.classList.add('btn-outline-secondary');
+            uploadBtn.classList.remove('btn-cyan', 'active');
+        }
+        startModalCamera();
+    } else {
+        if (camSection) camSection.style.display = 'none';
+        if (uploadSection) uploadSection.style.display = 'block';
+        if (uploadBtn) {
+            uploadBtn.classList.add('btn-cyan', 'active');
+            uploadBtn.classList.remove('btn-outline-secondary');
+        }
+        if (camBtn) {
+            camBtn.classList.add('btn-outline-secondary');
+            camBtn.classList.remove('btn-cyan', 'active');
+        }
+        stopModalCamera();
+    }
+}
+
+async function startModalCamera() {
+    const video = document.getElementById('modalRegVideo');
+    const placeholder = document.getElementById('modalCamPlaceholder');
+    const reticle = document.getElementById('modalFaceReticle');
+    const statusBadge = document.getElementById('modalCamStatusBadge');
+    const controls = document.getElementById('modalCamControls');
+    const statusText = document.getElementById('modalCamStatusText');
+
+    if (modalMediaStream) return;
+
+    try {
+        if (statusText) statusText.innerText = 'Initializing...';
+        if (statusBadge) statusBadge.style.display = 'inline-block';
+
+        modalMediaStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'user'
+            },
+            audio: false
+        });
+
+        if (video) {
+            video.srcObject = modalMediaStream;
+            video.style.display = 'block';
+        }
+        if (placeholder) placeholder.style.display = 'none';
+        if (reticle) reticle.style.display = 'block';
+        if (controls) controls.style.display = 'flex';
+        if (statusText) statusText.innerText = 'Face Scanner Active';
+
+        const autoBtn = document.getElementById('modalAutoBurstBtn');
+        const snapBtn = document.getElementById('modalSingleSnapBtn');
+        if (autoBtn) autoBtn.disabled = false;
+        if (snapBtn) snapBtn.disabled = false;
+    } catch (err) {
+        console.error('Camera access error:', err);
+        if (statusBadge) {
+            statusBadge.className = 'position-absolute top-0 start-0 m-2 badge bg-danger';
+        }
+        if (statusText) statusText.innerText = 'Camera Error: ' + err.message;
+        showToast('Could not access camera: ' + err.message, 'warning');
+    }
+}
+
+function stopModalCamera() {
+    if (modalMediaStream) {
+        modalMediaStream.getTracks().forEach(track => track.stop());
+        modalMediaStream = null;
+    }
+    const video = document.getElementById('modalRegVideo');
+    const placeholder = document.getElementById('modalCamPlaceholder');
+    const reticle = document.getElementById('modalFaceReticle');
+    const statusBadge = document.getElementById('modalCamStatusBadge');
+    const controls = document.getElementById('modalCamControls');
+
+    if (video) video.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'block';
+    if (reticle) reticle.style.display = 'none';
+    if (statusBadge) statusBadge.style.display = 'none';
+    if (controls) controls.style.display = 'none';
+}
+
+function captureSingleFacePose(poseLabel = null) {
+    const video = document.getElementById('modalRegVideo');
+    const canvas = document.getElementById('modalSnapCanvas');
+    if (!video || !modalMediaStream || video.videoWidth === 0) {
+        showToast('Camera is not active yet. Please start camera first.', 'warning');
+        return;
+    }
+
+    if (scannedPhotoBlobs.length >= 10) {
+        showToast('Maximum of 10 face scans reached.', 'info');
+        return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+        if (!blob) return;
+        const currentIdx = scannedPhotoBlobs.length;
+        const label = poseLabel || POSE_NAMES[currentIdx % POSE_NAMES.length] || `Scan ${currentIdx + 1}`;
+        const blobUrl = URL.createObjectURL(blob);
+
+        scannedPhotoBlobs.push({ blob, url: blobUrl, label });
+        renderScannedPhotosTray();
+        if (typeof playSuccessChime === 'function') playSuccessChime();
+    }, 'image/jpeg', 0.95);
+}
+
+async function autoScanFacePoses() {
+    const burstBtn = document.getElementById('modalAutoBurstBtn');
+    const singleBtn = document.getElementById('modalSingleSnapBtn');
+    const statusText = document.getElementById('modalCamStatusText');
+    if (burstBtn) burstBtn.disabled = true;
+    if (singleBtn) singleBtn.disabled = true;
+
+    showToast('Starting automated 5-pose face scan. Please rotate head slightly at each prompt!', 'info');
+
+    for (let i = 0; i < 5; i++) {
+        const pose = POSE_NAMES[i];
+        if (statusText) statusText.innerText = `Capturing: ${pose}...`;
+        captureSingleFacePose(pose);
+        await new Promise(r => setTimeout(r, 650));
+    }
+
+    if (statusText) statusText.innerText = 'Face Scanning Complete';
+    if (burstBtn) burstBtn.disabled = false;
+    if (singleBtn) singleBtn.disabled = false;
+    showToast('All 5 facial poses captured successfully! Ready for AI training.', 'success');
+}
+
+function renderScannedPhotosTray() {
+    const tray = document.getElementById('modalScannedPhotosTray');
+    const countBadge = document.getElementById('modalScannedCountBadge');
+    const clearBtn = document.getElementById('clearScansBtn');
+    if (!tray) return;
+
+    if (scannedPhotoBlobs.length === 0) {
+        tray.innerHTML = `
+            <div class="text-center w-100 py-4 text-muted small" id="noScansPrompt">
+                <i class="fa-regular fa-image mb-1 d-block opacity-50"></i>
+                No face scans captured yet.<br>Click "Auto-Scan 5 Poses" to begin.
+            </div>`;
+        if (countBadge) countBadge.innerText = '0 / 5 Scans';
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+    }
+
+    if (countBadge) countBadge.innerText = `${scannedPhotoBlobs.length} / 5 Scans`;
+    if (clearBtn) clearBtn.style.display = 'inline-block';
+
+    tray.innerHTML = '';
+    scannedPhotoBlobs.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'scanned-thumb-item';
+        div.innerHTML = `
+            <img src="${item.url}" alt="${item.label}">
+            <button type="button" class="thumb-del-btn" onclick="removeScannedPhoto(${idx})" title="Remove">&times;</button>
+            <div class="thumb-badge">${item.label.split(' ')[0]}</div>
+        `;
+        tray.appendChild(div);
+    });
+}
+
+function removeScannedPhoto(idx) {
+    if (idx >= 0 && idx < scannedPhotoBlobs.length) {
+        URL.revokeObjectURL(scannedPhotoBlobs[idx].url);
+        scannedPhotoBlobs.splice(idx, 1);
+        renderScannedPhotosTray();
+    }
+}
+
+function clearScannedPhotos() {
+    scannedPhotoBlobs.forEach(item => URL.revokeObjectURL(item.url));
+    scannedPhotoBlobs = [];
+    renderScannedPhotosTray();
+}
+
+// Quick camera snap for Face Gallery tab
+let quickCamStream = null;
+async function toggleQuickCamSnap() {
+    const box = document.getElementById('quickCamBox');
+    const video = document.getElementById('quickCamVideo');
+    if (!box) return;
+
+    if (box.style.display === 'none' || !box.style.display) {
+        box.style.display = 'block';
+        try {
+            quickCamStream = await navigator.mediaDevices.getUserMedia({
+                video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                audio: false
+            });
+            if (video) video.srcObject = quickCamStream;
+        } catch (e) {
+            showToast('Could not access camera: ' + e.message, 'danger');
+            box.style.display = 'none';
+        }
+    } else {
+        box.style.display = 'none';
+        if (quickCamStream) {
+            quickCamStream.getTracks().forEach(t => t.stop());
+            quickCamStream = null;
+        }
+    }
+}
+
+async function captureAndUploadQuickSnap() {
+    if (!currentSelectedRoll) {
+        showToast('Please select a student first.', 'warning');
+        return;
+    }
+    const video = document.getElementById('quickCamVideo');
+    const canvas = document.getElementById('quickCamCanvas');
+    if (!video || !quickCamStream || video.videoWidth === 0) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `cam_snap_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        const formData = new FormData();
+        formData.append('photo', file);
+
+        try {
+            showToast('Saving biometric scan and training model...', 'info');
+            const resp = await fetch(`/api/admin/students/${currentSelectedRoll}/photos/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await resp.json();
+            if (data.success) {
+                showToast(data.message, 'success');
+                if (typeof playSuccessChime === 'function') playSuccessChime();
+                loadStudentPhotos(currentSelectedRoll);
+            } else {
+                showToast(data.message, 'warning');
+            }
+        } catch (err) {
+            showToast('Upload error: ' + err.message, 'danger');
+        }
+    }, 'image/jpeg', 0.95);
+}
+
+// Cleanup camera on modal dismiss
+document.addEventListener('DOMContentLoaded', () => {
+    const modalEl = document.getElementById('addStudentModal');
+    if (modalEl) {
+        modalEl.addEventListener('hidden.bs.modal', () => {
+            stopModalCamera();
+            clearScannedPhotos();
+        });
+        modalEl.addEventListener('shown.bs.modal', () => {
+            // Auto start camera if on camera intake mode
+            const camSection = document.getElementById('camIntakeSection');
+            if (camSection && camSection.style.display !== 'none') {
+                startModalCamera();
+            }
+        });
+    }
+});
+
 // Register New Student Form Submission with Automated Face Training
 document.getElementById('adminAddStudentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1895,6 +2311,14 @@ document.getElementById('adminAddStudentForm').addEventListener('submit', async 
     formData.append('academic_session', session);
     formData.append('consent_given', consent ? '1' : '0');
 
+    // Append scanned photos from live camera
+    if (scannedPhotoBlobs && scannedPhotoBlobs.length > 0) {
+        scannedPhotoBlobs.forEach((item, idx) => {
+            const file = new File([item.blob], `scan_${idx + 1}.jpg`, { type: 'image/jpeg' });
+            formData.append('photos', file);
+        });
+    }
+
     if (photoInput && photoInput.files.length > 0) {
         Array.from(photoInput.files).forEach((f) => {
             formData.append('photos', f);
@@ -1939,6 +2363,8 @@ document.getElementById('adminAddStudentForm').addEventListener('submit', async 
                     const modalEl = document.getElementById('addStudentModal');
                     const modalObj = bootstrap.Modal.getOrCreateInstance(modalEl);
                     modalObj.hide();
+                    stopModalCamera();
+                    clearScannedPhotos();
                     progBox.classList.add('d-none');
                     document.getElementById('adminAddStudentForm').reset();
                     document.getElementById('modalPhotosPreview').innerHTML = '';
@@ -2130,7 +2556,7 @@ function renderPhotoGallery(photos) {
             <div class="card h-100 border shadow-sm">
                 <img src="${p.url}" class="card-img-top" style="height: 160px; object-fit: cover;">
                 <div class="card-body p-2 text-center">
-                    <div class="fw-bold text-dark small">${p.filename}</div>
+                    <div class="fw-bold text-white small">${p.filename}</div>
                     <div class="text-muted" style="font-size: 0.72rem;">${p.size_kb} KB • ${p.modified}</div>
                     <div class="d-flex gap-1 justify-content-center mt-2">
                         <label class="btn btn-xs btn-outline-primary" title="Replace this photo" style="font-size: 0.72rem;">
@@ -2869,6 +3295,19 @@ if (btnRefVers) btnRefVers.addEventListener('click', loadModelVersionHistory);
 document.addEventListener('DOMContentLoaded', () => {
     loadAiModelOverview();
     loadModelVersionHistory();
+
+    // Auto-activate tab based on URL hash (e.g. #pane-students)
+    function activateTabFromHash() {
+        const hash = window.location.hash;
+        if (hash) {
+            const btn = document.querySelector(`[data-bs-target="${hash}"]`) || document.getElementById(hash.replace('#', ''));
+            if (btn && btn.click) {
+                btn.click();
+            }
+        }
+    }
+    activateTabFromHash();
+    window.addEventListener('hashchange', activateTabFromHash);
 });
 
 

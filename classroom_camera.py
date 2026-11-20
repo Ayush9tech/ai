@@ -154,7 +154,10 @@ class ClassroomCamera:
 
         if model_file:
             try:
-                from keras.models import load_model
+                try:
+                    from tf_keras.models import load_model
+                except ImportError:
+                    from keras.models import load_model
                 self.model = load_model(str(model_file), compile=False)
                 print(f"[ClassroomCamera] Loaded classifier model: {model_file.name}")
             except Exception as e:
@@ -251,6 +254,40 @@ class ClassroomCamera:
                 return None
             ret, buffer = cv2.imencode(".jpg", self.current_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
             return buffer.tobytes() if ret else None
+
+    @staticmethod
+    def _draw_banner(img, x, y, w, h, title_text, sub_text, color_bgr):
+        """Draws crisp vector-like header banner and subtitle over person's face."""
+        font = cv2.FONT_HERSHEY_DUPLEX
+        scale = 0.50
+        thick = 1
+        (tw, th), base = cv2.getTextSize(title_text, font, scale, thick)
+        pad = 6
+        banner_w = max(w, tw + pad * 2)
+        banner_h = th + pad * 2 + 2
+
+        if y >= banner_h + 2:
+            by1 = y - banner_h
+            by2 = y
+            ty = y - pad - 2
+        else:
+            by1 = y
+            by2 = y + banner_h
+            ty = y + banner_h - pad - 2
+
+        cv2.rectangle(img, (x, y), (x + w, y + h), color_bgr, 2)
+        cv2.rectangle(img, (x, by1), (x + banner_w, by2), color_bgr, -1)
+        cv2.putText(img, title_text, (x + pad + 1, ty + 1), font, scale, (0, 0, 0), thick + 1, cv2.LINE_AA)
+        cv2.putText(img, title_text, (x + pad, ty), font, scale, (255, 255, 255), thick, cv2.LINE_AA)
+
+        if sub_text:
+            (stw, sth), sbase = cv2.getTextSize(sub_text, cv2.FONT_HERSHEY_SIMPLEX, 0.40, 1)
+            sub_w = max(w, stw + pad * 2)
+            sub_h = sth + pad * 2
+            sy1 = y + h
+            sy2 = y + h + sub_h
+            cv2.rectangle(img, (x, sy1), (x + sub_w, sy2), (10, 25, 47), -1)
+            cv2.putText(img, sub_text, (x + pad, sy1 + sth + pad), cv2.FONT_HERSHEY_SIMPLEX, 0.40, color_bgr, 1, cv2.LINE_AA)
 
     # =========================================================================
     # MULTI-PERSON PROCESSING (Client-side & Server-side shared)
@@ -408,45 +445,35 @@ class ClassroomCamera:
                 continue
 
             # =================================================================
-            # STEP B: CLASS-WISE STUDENT RECOGNITION (Restricted to Eligible Roster)
+            # STEP B: HIGH-PRECISION STUDENT RECOGNITION & IDENTITY EXTRACTION
             # =================================================================
+            # Match against all registered student prototypes with calibrated similarity
             matched_roll, student_name, confidence, recog_state = prototype_matcher.match_embedding(
-                emb_feat, eligible_ids=eligible_ids
+                emb_feat, eligible_ids=None
             )
 
-            # Fallback to legacy MLP model only if prototypes empty
-            if not prototype_matcher.prototypes and self.model is not None and self.labels_data is not None:
+            # High precision fallback to MLP model if prototypes empty or unconfident
+            if (recog_state == "UNKNOWN" or not prototype_matcher.prototypes) and self.model is not None and self.labels_data is not None:
                 emb_input = np.expand_dims(emb_feat, axis=0)
                 predictions = self.model.predict(emb_input, verbose=0)[0]
                 best_idx = int(np.argmax(predictions))
-                confidence = float(predictions[best_idx])
+                mlp_conf = float(predictions[best_idx])
                 str_idx = str(best_idx)
                 idx_to_roll = self.labels_data.get("idx_to_roll", {})
                 idx_to_name = self.labels_data.get("idx_to_name", {})
-                if confidence >= self.confidence_threshold and str_idx in idx_to_roll:
+                if mlp_conf >= 0.70 and str_idx in idx_to_roll:
                     matched_roll = idx_to_roll[str_idx]
                     student_name = idx_to_name.get(str_idx, f"Student {matched_roll}")
+                    confidence = mlp_conf
                     recog_state = "HIGH_CONFIDENCE"
-                elif confidence >= 0.60:
-                    matched_roll = idx_to_roll.get(str_idx, "UNKNOWN")
-                    student_name = idx_to_name.get(str_idx, "Uncertain")
-                    recog_state = "REVIEW_REQUIRED"
-                else:
-                    matched_roll = "UNKNOWN"
-                    student_name = "Visitor / Unregistered"
-                    recog_state = "UNKNOWN"
 
-            # Case 1: Verified Eligible Student
+            # Check if student is verified
             if recog_state in ["HIGH_CONFIDENCE", "REVIEW_REQUIRED"] and matched_roll != "UNKNOWN":
                 student = db_manager.get_student(matched_roll)
 
                 # Privacy Safeguard: Non-consenting
-                if not student or not student.get("consent_given", 1):
-                    cv2.rectangle(annotated, (x, y), (x + w, y + h), (140, 140, 140), 2)
-                    cv2.putText(
-                        annotated, "Identity Protected (Non-Consenting)",
-                        (x, max(20, y - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (180, 180, 180), 1
-                    )
+                if student and not student.get("consent_given", 1):
+                    self._draw_banner(annotated, x, y, w, h, "IDENTITY PROTECTED", "Consent Restricted", (140, 140, 140))
                     detections.append({
                         "roll": "ANONYMOUS",
                         "name": "Identity Protected",
@@ -463,8 +490,18 @@ class ClassroomCamera:
                     })
                     continue
 
-                student_name = student.get("name", student_name)
-                stream_dept = student.get("stream") or student.get("department", "")
+                if student:
+                    student_name = student.get("name", student_name)
+                    stream_dept = student.get("stream") or student.get("department", "")
+                else:
+                    stream_dept = ""
+
+                # Check if session has a specific roster subset
+                is_outside_class = False
+                if eligible_ids and len(eligible_ids) > 0:
+                    eligible_set = {str(eid).strip() for eid in eligible_ids}
+                    if str(matched_roll).strip() not in eligible_set:
+                        is_outside_class = True
 
                 streak = self.detection_streak.get(matched_roll, 0) + 1
                 self.detection_streak[matched_roll] = streak
@@ -473,7 +510,7 @@ class ClassroomCamera:
                 is_verified = (streak >= self.consecutive_frames_needed and recog_state == "HIGH_CONFIDENCE")
                 decision_state = "VERIFIED_STUDENT"
 
-                if auto_mark and sess and is_verified:
+                if not is_outside_class and auto_mark and sess and is_verified:
                     success, msg, event_action = db_manager.record_session_presence(
                         sess, matched_roll, verification_method="AI_FACENET_CALIBRATED"
                     )
@@ -481,22 +518,28 @@ class ClassroomCamera:
                         "DUPLICATE_ATTEMPT" if "Already" in msg else "VERIFIED_STUDENT"
                     )
 
-                # Emerald Green: BGR (19, 185, 16) -> #10b981. Verifying Yellow: BGR (8, 179, 234)
-                box_color = (19, 185, 16) if is_verified else (8, 179, 234)
-                status_label = "Verified Present" if is_verified else (
-                    f"Verifying ({streak}/{self.consecutive_frames_needed})" if recog_state == "HIGH_CONFIDENCE" else "Review Required"
-                )
+                # Visual color codes & labels
+                if is_outside_class:
+                    box_color = (0, 140, 255)  # Orange
+                    color_hex = "#f97316"
+                    status_label = "Other Section"
+                elif is_verified:
+                    box_color = (19, 185, 16)  # Emerald Green
+                    color_hex = "#10b981"
+                    status_label = "Verified Present"
+                elif recog_state == "HIGH_CONFIDENCE":
+                    box_color = (16, 185, 129)  # Green-Teal
+                    color_hex = "#10b981"
+                    status_label = f"Verifying ({streak}/{self.consecutive_frames_needed})"
+                else:
+                    box_color = (8, 179, 234)  # Yellow
+                    color_hex = "#eab308"
+                    status_label = "Review Required"
 
-                cv2.rectangle(annotated, (x, y), (x + w, y + h), box_color, 2)
-                cv2.rectangle(annotated, (x, max(0, y - 24)), (x + w, y), box_color, -1)
-                cv2.putText(
-                    annotated, f"{student_name} ({matched_roll}) - {int(confidence * 100)}%",
-                    (x + 4, max(14, y - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (10, 25, 47), 2
-                )
-                cv2.putText(
-                    annotated, f"{stream_dept} | {status_label}",
-                    (x, y + h + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.45, box_color, 1
-                )
+                # Crisp high-contrast on-screen label over the person
+                banner_title = f"{student_name} ({int(confidence * 100)}%)"
+                banner_sub = f"ID: {matched_roll} • {status_label}"
+                self._draw_banner(annotated, x, y, w, h, banner_title, banner_sub, box_color)
 
                 db_manager.log_recognition_decision(
                     session_id=sess, person_id=matched_roll, person_type="STUDENT",
@@ -509,16 +552,16 @@ class ClassroomCamera:
                     "name": student_name,
                     "stream": stream_dept,
                     "department": stream_dept,
-                    "profile_photo": student.get("profile_photo") or f"/static/profiles/{matched_roll}.jpg",
+                    "profile_photo": (student.get("profile_photo") if student else None) or f"/static/profiles/{matched_roll}.jpg",
                     "confidence": round(confidence, 3),
                     "status": status_label,
                     "recognition_state": decision_state,
                     "event_action": event_action,
                     "verified": is_verified,
                     "is_faculty": False,
-                    "is_outside_class": False,
-                    "color": "#10b981" if is_verified else "#eab308",
-                    "box_color": [16, 185, 129] if is_verified else [234, 179, 8],
+                    "is_outside_class": is_outside_class,
+                    "color": color_hex,
+                    "box_color": [box_color[2], box_color[1], box_color[0]],
                     "warning_message": None,
                     "is_consenting": True,
                     "quality_score": q_score,
@@ -527,122 +570,63 @@ class ClassroomCamera:
                     "centroid": [int(x + w / 2), int(y + h / 2)]
                 })
 
+            elif recog_state == "AMBIGUOUS":
+                # Ambiguous match (margin between top-2 candidates < 0.04) -> Yellow Box
+                box_color = (8, 179, 234)
+                self._draw_banner(annotated, x, y, w, h, "AMBIGUOUS MATCH", "Attendance Denied", box_color)
+                db_manager.log_recognition_decision(
+                    session_id=sess, person_id="AMBIGUOUS", person_type="STUDENT",
+                    decision_state="AMBIGUOUS", confidence=round(confidence, 3),
+                    metadata={"reason": "Similarity difference between candidates below margin threshold"}
+                )
+                detections.append({
+                    "roll": "AMBIGUOUS",
+                    "name": "Ambiguous Identity",
+                    "confidence": round(confidence, 3),
+                    "status": "Ambiguous - Attendance Denied",
+                    "recognition_state": "AMBIGUOUS",
+                    "is_faculty": False,
+                    "is_outside_class": False,
+                    "color": "#eab308",
+                    "box_color": [234, 179, 8],
+                    "warning_message": None,
+                    "quality_score": q_score,
+                    "track_id": track_map.get(i, f"Track #{i + 1}"),
+                    "bbox": [int(x), int(y), int(w), int(h)],
+                    "centroid": [int(x + w / 2), int(y + h / 2)]
+                })
+
             else:
-                # =============================================================
-                # STEP C: CHECK IF STUDENT BELONGS TO ANOTHER CLASS (OUTSIDE-CLASS)
-                # =============================================================
-                out_roll, out_name, out_conf, out_state = prototype_matcher.match_embedding(
-                    emb_feat, eligible_ids=None
+                # =========================================================
+                # STEP D: UNREGISTERED / UNKNOWN PERSON
+                # =========================================================
+                box_color = (68, 68, 239)  # Red BGR
+                self._draw_banner(annotated, x, y, w, h, "UNKNOWN PERSON", "Unregistered • Visitor", box_color)
+
+                db_manager.log_recognition_decision(
+                    session_id=sess, person_id="UNKNOWN", person_type="UNKNOWN",
+                    decision_state="UNKNOWN", confidence=round(confidence, 3),
+                    metadata={"action": "Attendance Denied"}
                 )
 
-                if out_state in ["HIGH_CONFIDENCE", "REVIEW_REQUIRED"] and out_roll != "UNKNOWN":
-                    # This person is a known student in the institution, but not eligible for current session!
-                    # Orange Box: BGR (22, 115, 249) -> #f97316
-                    box_color = (22, 115, 249)
-                    warn_msg = "⚠ You are not part of this class. Please leave the classroom or contact the faculty member."
-
-                    cv2.rectangle(annotated, (x, y), (x + w, y + h), box_color, 2)
-                    cv2.rectangle(annotated, (x, max(0, y - 24)), (x + w, y), box_color, -1)
-                    cv2.putText(
-                        annotated, f"NOT IN THIS CLASS ({out_roll})",
-                        (x + 4, max(14, y - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 2
-                    )
-                    cv2.putText(
-                        annotated, f"{out_name} - Attendance Excluded",
-                        (x, y + h + 16), cv2.FONT_HERSHEY_SIMPLEX, 0.42, box_color, 1
-                    )
-
-                    db_manager.log_recognition_decision(
-                        session_id=sess, person_id=out_roll, person_type="STUDENT",
-                        decision_state="OUTSIDE_CLASS", confidence=out_conf,
-                        metadata={"name": out_name, "class_required": sess, "action": "Attendance Denied"}
-                    )
-
-                    detections.append({
-                        "roll": out_roll,
-                        "name": out_name,
-                        "confidence": round(out_conf, 3),
-                        "status": "Outside Class",
-                        "recognition_state": "OUTSIDE_CLASS",
-                        "is_faculty": False,
-                        "is_outside_class": True,
-                        "color": "#f97316",
-                        "box_color": [249, 115, 22],
-                        "warning_message": warn_msg,
-                        "quality_score": q_score,
-                        "track_id": track_map.get(i, f"Track #{i + 1}"),
-                        "bbox": [int(x), int(y), int(w), int(h)],
-                        "centroid": [int(x + w / 2), int(y + h / 2)]
-                    })
-
-                elif out_state == "AMBIGUOUS" or recog_state == "AMBIGUOUS":
-                    # Ambiguous match (margin between top-2 candidates < 0.04) -> Yellow Box
-                    box_color = (8, 179, 234)
-                    cv2.rectangle(annotated, (x, y), (x + w, y + h), box_color, 2)
-                    cv2.putText(
-                        annotated, "AMBIGUOUS MATCH",
-                        (x, max(20, y - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.45, box_color, 2
-                    )
-                    db_manager.log_recognition_decision(
-                        session_id=sess, person_id="AMBIGUOUS", person_type="STUDENT",
-                        decision_state="AMBIGUOUS", confidence=round(out_conf, 3),
-                        metadata={"reason": "Similarity difference between candidates below margin threshold"}
-                    )
-                    detections.append({
-                        "roll": "AMBIGUOUS",
-                        "name": "Ambiguous Identity",
-                        "confidence": round(out_conf, 3),
-                        "status": "Ambiguous - Attendance Denied",
-                        "recognition_state": "AMBIGUOUS",
-                        "is_faculty": False,
-                        "is_outside_class": False,
-                        "color": "#eab308",
-                        "box_color": [234, 179, 8],
-                        "warning_message": None,
-                        "quality_score": q_score,
-                        "track_id": track_map.get(i, f"Track #{i + 1}"),
-                        "bbox": [int(x), int(y), int(w), int(h)],
-                        "centroid": [int(x + w / 2), int(y + h / 2)]
-                    })
-
-                else:
-                    # =========================================================
-                    # STEP D: UNREGISTERED / UNKNOWN PERSON
-                    # =========================================================
-                    # Red Box: BGR (68, 68, 239) -> #ef4444
-                    box_color = (68, 68, 239)
-                    warn_msg = "Unknown person detected — Attendance not marked."
-
-                    cv2.rectangle(annotated, (x, y), (x + w, y + h), box_color, 2)
-                    cv2.putText(
-                        annotated, f"UNKNOWN PERSON ({int(out_conf * 100)}%)",
-                        (x, max(20, y - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.48, box_color, 2
-                    )
-
-                    db_manager.log_recognition_decision(
-                        session_id=sess, person_id="UNKNOWN", person_type="UNKNOWN",
-                        decision_state="UNKNOWN", confidence=round(out_conf, 3),
-                        metadata={"action": "Attendance Denied"}
-                    )
-
-                    detections.append({
-                        "roll": "UNKNOWN",
-                        "name": "UNKNOWN PERSON",
-                        "confidence": round(out_conf, 3),
-                        "status": "Unregistered",
-                        "recognition_state": "UNKNOWN",
-                        "is_faculty": False,
-                        "is_outside_class": False,
-                        "is_unknown": True,
-                        "color": "#ef4444",
-                        "box_color": [239, 68, 68],
-                        "warning_message": warn_msg,
-                        "is_consenting": False,
-                        "quality_score": q_score,
-                        "track_id": track_map.get(i, f"Track #{i + 1}"),
-                        "bbox": [int(x), int(y), int(w), int(h)],
-                        "centroid": [int(x + w / 2), int(y + h / 2)]
-                    })
+                detections.append({
+                    "roll": "UNKNOWN",
+                    "name": "UNKNOWN PERSON",
+                    "confidence": round(confidence, 3),
+                    "status": "Unregistered",
+                    "recognition_state": "UNKNOWN",
+                    "is_faculty": False,
+                    "is_outside_class": False,
+                    "is_unknown": True,
+                    "color": "#ef4444",
+                    "box_color": [239, 68, 68],
+                    "warning_message": "Unknown person detected — Attendance not marked.",
+                    "is_consenting": False,
+                    "quality_score": q_score,
+                    "track_id": track_map.get(i, f"Track #{i + 1}"),
+                    "bbox": [int(x), int(y), int(w), int(h)],
+                    "centroid": [int(x + w / 2), int(y + h / 2)]
+                })
 
         self._draw_hud(annotated, f"CLASSROOM CAM: ONLINE | FACES: {len(detected_faces)}")
         self.latency_ms = (time.time() - start_time) * 1000.0

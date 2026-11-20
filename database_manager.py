@@ -852,12 +852,17 @@ class DatabaseManager:
         ids = sess.get("eligible_student_ids")
         if isinstance(ids, str):
             try:
-                return json.loads(ids)
+                parsed = json.loads(ids)
+                if isinstance(parsed, list) and len(parsed) > 0:
+                    return parsed
             except Exception:
-                return []
-        elif isinstance(ids, list):
+                pass
+        elif isinstance(ids, list) and len(ids) > 0:
             return ids
-        return []
+
+        # If not explicitly restricted to a subset, all registered students are eligible
+        all_students = self.get_all_students()
+        return [s["roll_number"] for s in all_students if s.get("roll_number")]
 
     def get_active_session(self):
         """Retrieves the current active session record."""
@@ -2452,10 +2457,27 @@ class DatabaseManager:
     # =========================================================================
     # 6. RECOGNITION AUDIT LOGGING & ZERO-TOLERANCE ANALYTICS
     # =========================================================================
-    def log_recognition_decision(self, session_id, predicted_identity_type,
-                                 matched_identity_id, matched_name, similarity_score,
-                                 decision, rejection_reason="", model_version="FaceNet-128D"):
+    def log_recognition_decision(self, session_id=None, predicted_identity_type="STUDENT",
+                                 matched_identity_id=None, matched_name="", similarity_score=0.0,
+                                 decision="", rejection_reason="", model_version="FaceNet-128D",
+                                 *args, **kwargs):
         """Logs every camera recognition decision for real-time auditability."""
+        # Handle keyword argument aliases from different callers
+        if "person_id" in kwargs and not matched_identity_id:
+            matched_identity_id = kwargs.get("person_id")
+        if "person_type" in kwargs:
+            predicted_identity_type = kwargs.get("person_type")
+        if "decision_state" in kwargs and not decision:
+            decision = kwargs.get("decision_state")
+        if "confidence" in kwargs and not similarity_score:
+            similarity_score = kwargs.get("confidence")
+        if "metadata" in kwargs:
+            meta = kwargs.get("metadata") or {}
+            if not matched_name and "name" in meta:
+                matched_name = meta.get("name")
+            if not rejection_reason and "reason" in meta:
+                rejection_reason = meta.get("reason")
+
         log_id = f"LOG_{uuid.uuid4().hex[:10].upper()}"
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -2503,6 +2525,11 @@ class DatabaseManager:
                 cursor = self.mongo_db.Recognition_Logs.find(q).sort("timestamp", -1).limit(limit)
                 for doc in cursor:
                     doc.pop("_id", None)
+                    doc["person_type"] = doc.get("person_type") or doc.get("predicted_identity_type", "UNKNOWN")
+                    doc["person_id"] = doc.get("person_id") or doc.get("matched_identity_id", "UNKNOWN")
+                    doc["decision_state"] = doc.get("decision_state") or doc.get("decision", "")
+                    doc["confidence"] = float(doc.get("confidence") if doc.get("confidence") is not None else doc.get("similarity_score", 0.0))
+                    doc["metadata_json"] = doc.get("metadata_json") or doc.get("rejection_reason", "")
                     logs.append(doc)
                 if logs:
                     return logs
@@ -2517,7 +2544,14 @@ class DatabaseManager:
                     cursor.execute("SELECT * FROM recognition_logs WHERE session_id = ? ORDER BY timestamp DESC LIMIT ?", (session_id, limit))
                 else:
                     cursor.execute("SELECT * FROM recognition_logs ORDER BY timestamp DESC LIMIT ?", (limit,))
-                return [dict(r) for r in cursor.fetchall()]
+                raw_logs = [dict(r) for r in cursor.fetchall()]
+                for doc in raw_logs:
+                    doc["person_type"] = doc.get("person_type") or doc.get("predicted_identity_type", "UNKNOWN")
+                    doc["person_id"] = doc.get("person_id") or doc.get("matched_identity_id", "UNKNOWN")
+                    doc["decision_state"] = doc.get("decision_state") or doc.get("decision", "")
+                    doc["confidence"] = float(doc.get("confidence") if doc.get("confidence") is not None else doc.get("similarity_score", 0.0))
+                    doc["metadata_json"] = doc.get("metadata_json") or doc.get("rejection_reason", "")
+                return raw_logs
         except Exception:
             return []
 

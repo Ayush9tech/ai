@@ -28,9 +28,14 @@ def _load_facenet_model():
         return None
 
     try:
-        import keras.src.utils.generic_utils as gu
-        import keras.src.saving.serialization_lib as sl
-        from keras.models import model_from_json
+        try:
+            import tf_keras.src.utils.generic_utils as gu
+            import tf_keras.src.saving.serialization_lib as sl
+            from tf_keras.models import model_from_json
+        except ImportError:
+            import keras.src.utils.generic_utils as gu
+            import keras.src.saving.serialization_lib as sl
+            from keras.models import model_from_json
 
         # Enable unsafe deserialization for trusted local model weights
         sl.enable_unsafe_deserialization()
@@ -56,7 +61,10 @@ def _load_facenet_model():
         return _GLOBAL_FACENET_MODEL
     except Exception as e:
         print(f"[FaceNet] Standard load failed ({e}), attempting fallback load_model...")
-        from keras.models import load_model
+        try:
+            from tf_keras.models import load_model
+        except ImportError:
+            from keras.models import load_model
         model = load_model(str(FACENET_PATH), compile=False)
         _GLOBAL_FACENET_MODEL = model
         return _GLOBAL_FACENET_MODEL
