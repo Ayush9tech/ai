@@ -175,3 +175,4 @@ Run all 10 automated test suites:
 - **Passive Privacy Masking**: Non-consenting or unregistered faces are identified as `Identity Protected` and masked in real-time camera views.
 - **Audit Trails**: All status overrides, check-ins, exits, and returns are permanently recorded in `session_events` with timestamps and instructor verification notes.
 - **Right to Erasure**: Biometric images in `people/<roll>_<name>` and profile metadata can be erased immediately via `/api/students/delete`.
+# ai
